@@ -35,7 +35,6 @@ def export_dataset_to_parquet(project_id, dataset_id, destination_path):
 
 
 
-# Example usage (replace with your project, dataset, and path):
 PROJECT_ID = ""  # Replace with your project ID
 dataset_id = "kittycorn_sfdc"
 destination_path = "./sample-data/{table_name}.parquet"  # Or local path

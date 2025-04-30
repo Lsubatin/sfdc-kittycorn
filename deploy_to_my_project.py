@@ -1,0 +1,56 @@
+from google.cloud import bigquery
+from io import FileIO
+import os
+
+def import_parquet_files_to_bigquery(project_id, dataset_id, parquet_folder):
+    """
+    Imports Parquet files from a folder into BigQuery, creating a table for each file.
+
+    Args:
+        project_id: The ID of your Google Cloud project.
+        dataset_id: The ID of the dataset to import into.
+        parquet_folder: The local path of the folder containing Parquet files.
+    """
+
+    client = bigquery.Client(project=project_id)
+    dataset_ref = client.create_dataset(dataset_id, exists_ok=True)
+
+    parquet_folder = os.path.abspath(parquet_folder)
+    for filename in os.listdir(parquet_folder):
+        if filename.endswith(".parquet"):
+            table_id = filename[:-8]  # Remove ".parquet" extension
+            table_ref = dataset_ref.table(table_id)
+
+            # Check if table already exists, if yes, you might want to append,
+            # replace, or skip - handle according to your needs.
+            try:
+                client.get_table(table_ref) # throws exception if doesn't exist
+                print(f"Table {table_id} already exists. Skipping.")  # Or choose to append/replace
+                continue
+            except:
+                pass # handle exception to continue processing other files
+
+            job_config = bigquery.LoadJobConfig(
+                source_format=bigquery.SourceFormat.PARQUET,
+                autodetect=True,  # Auto-detect schema
+                write_disposition = 'WRITE_TRUNCATE'  # WRITE_APPEND, WRITE_EMPTY
+            )
+
+            with FileIO(os.path.join(parquet_folder, filename)) as f:
+                load_job = client.load_table_from_file(
+                    f,
+                    table_ref,
+                    job_config=job_config
+                )
+                load_job.result()  # Waits for the job to complete.
+                print(f"Loaded {load_job.output_rows} rows into {table_ref.path}")
+
+
+PROJECT_ID = ""
+DATASET_ID = ""
+parquet_folder = "./sample-data"
+
+if not PROJECT_ID or not DATASET_ID:
+    raise ValueError("Set `PROJECT_ID` and `DATASET_ID` variables.")
+
+import_parquet_files_to_bigquery(PROJECT_ID, DATASET_ID, parquet_folder)
