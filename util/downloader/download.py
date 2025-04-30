@@ -16,18 +16,19 @@ from pathlib import Path
 from google.cloud import bigquery
 import pyarrow.parquet as pq
 
-def export_dataset_to_parquet(project_id, dataset_id, destination_path):
+def export_dataset_to_parquet(project_id, dataset_id, location, destination_path):
     """
     Exports a BigQuery dataset to Parquet files.
 
     Args:
         project_id: The ID of your Google Cloud project.
         dataset_id: The ID of the dataset to export.
+        location: BigQuery location.
         destination_path: The local path where Parquet files will be saved.
             Should follow the format: /path/to/directory/{table_name}.parquet"
     """
 
-    client = bigquery.Client(project=project_id)
+    client = bigquery.Client(project=project_id, location=location)
     dataset_ref = client.get_dataset(dataset_id)
 
     for table_ref in client.list_tables(dataset_ref):
@@ -50,10 +51,11 @@ def export_dataset_to_parquet(project_id, dataset_id, destination_path):
 
 
 PROJECT_ID = ""  # Replace with your project ID
-dataset_id = "kittycorn_sfdc"
+DATASET_NAME = ""  # Replace with your dataset name
+LOCATION = "US"
 destination_path = "./sample-data/{table_name}.parquet"  # Or local path
 
-if not PROJECT_ID:
-    raise ValueError("Set `PROJECT_ID` variable with id of your project!")
+if not PROJECT_ID or not DATASET_NAME:
+    raise ValueError("Set `PROJECT_ID` and `DATASET_NAME` variables.")
 
-export_dataset_to_parquet(PROJECT_ID, dataset_id, destination_path)
+export_dataset_to_parquet(PROJECT_ID, DATASET_NAME, LOCATION, destination_path)

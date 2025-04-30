@@ -16,18 +16,21 @@ from google.cloud import bigquery
 from io import FileIO
 import os
 
-def import_parquet_files_to_bigquery(project_id, dataset_id, parquet_folder):
+def import_parquet_files_to_bigquery(project_id, dataset_id, location, parquet_folder):
     """
     Imports Parquet files from a folder into BigQuery, creating a table for each file.
 
     Args:
         project_id: The ID of your Google Cloud project.
         dataset_id: The ID of the dataset to import into.
+        location: BigQuery location.
         parquet_folder: The local path of the folder containing Parquet files.
     """
 
-    client = bigquery.Client(project=project_id)
-    dataset_ref = client.create_dataset(dataset_id, exists_ok=True)
+    client = bigquery.Client(project=project_id, location=location)
+    dataset = bigquery.Dataset(dataset_id)
+    dataset.location = location
+    dataset_ref = client.create_dataset(dataset, exists_ok=True)
 
     parquet_folder = os.path.abspath(parquet_folder)
     for filename in os.listdir(parquet_folder):
@@ -54,17 +57,19 @@ def import_parquet_files_to_bigquery(project_id, dataset_id, parquet_folder):
                 load_job = client.load_table_from_file(
                     f,
                     table_ref,
-                    job_config=job_config
+                    job_config=job_config,
+                    location=location
                 )
                 load_job.result()  # Waits for the job to complete.
                 print(f"Loaded {load_job.output_rows} rows into {table_ref.path}")
 
 
-PROJECT_ID = ""
-DATASET_ID = ""
+PROJECT_ID = ""  # Replace with your project ID
+DATASET_NAME = ""  # Replace with your dataset name
+LOCATION = "US"
 parquet_folder = "./sample-data"
 
-if not PROJECT_ID or not DATASET_ID:
+if not PROJECT_ID or not DATASET_NAME:
     raise ValueError("Set `PROJECT_ID` and `DATASET_ID` variables.")
 
-import_parquet_files_to_bigquery(PROJECT_ID, DATASET_ID, parquet_folder)
+import_parquet_files_to_bigquery(PROJECT_ID, DATASET_NAME, LOCATION, parquet_folder)
