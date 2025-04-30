@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 from google.cloud import bigquery
 from io import FileIO
 import os
+import sys
 
 def import_parquet_files_to_bigquery(project_id, dataset_id, location, parquet_folder):
     """
@@ -63,13 +66,33 @@ def import_parquet_files_to_bigquery(project_id, dataset_id, location, parquet_f
                 load_job.result()  # Waits for the job to complete.
                 print(f"Loaded {load_job.output_rows} rows into {table_ref.path}")
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Parquet uploader")
 
-PROJECT_ID = ""  # Replace with your project ID
-DATASET_NAME = ""  # Replace with your dataset name
-LOCATION = "US"
+    parser.add_argument(
+            "--project",
+            help="Target Google Cloud project.",
+            type=str,
+            required=True,
+    )
+    parser.add_argument(
+            "--dataset",
+            help="Target Google Cloud dataset.",
+            type=str,
+            required=True,
+    )
+    parser.add_argument(
+            "--location",
+            help="Google Cloud BigQuery location.",
+            type=str,
+            required=False,
+            default="US"
+    )
+    options = parser.parse_args(sys.argv[1:])
+
 parquet_folder = "./sample-data"
 
-if not PROJECT_ID or not DATASET_NAME:
-    raise ValueError("Set `PROJECT_ID` and `DATASET_ID` variables.")
-
-import_parquet_files_to_bigquery(PROJECT_ID, DATASET_NAME, LOCATION, parquet_folder)
+import_parquet_files_to_bigquery(options.project,
+                                 options.dataset,
+                                 options.location,
+                                 parquet_folder)

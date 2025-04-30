@@ -22,7 +22,19 @@ Originally sourced from public test harness dataset `kittycorn-public.sfdc__raw_
 
 Somewhat cleaned-up and augmented by [@vladkol](https://github.com/vladkol) and [@lsubatin](https://github.com/lsubatin).
 
-> Run `git config http.postBuffer 524288000` if you have weird `git` errors when pushing to this repo.
+## Usage
+
+1. Clone this repository: `git clone https://github.com/vladkol/sfdc-kittycorn`.
+2. Change current directory to the repository directory: `cd sfdc-kittycorn`.
+3. Upload sample data to your BigQuery project:
+
+```bash
+deploy_to_my_project.py --project YOUR_PROJECT_ID --dataset YOUR_DATASET_NAME [--location BIG_QUERY_LOCATION]
+# Default `BIG_QUERY_LOCATION` is `US`.
+```
+
+> Tables are created according to the source parquet-file names.
+> If table already exists, it will be skipped.
 
 ## 📄 License
 
