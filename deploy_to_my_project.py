@@ -17,6 +17,7 @@ import argparse
 from google.cloud import bigquery
 from io import FileIO
 import os
+from pathlib import Path
 import sys
 
 def import_parquet_files_to_bigquery(project_id, dataset_id, location, parquet_folder):
@@ -31,7 +32,7 @@ def import_parquet_files_to_bigquery(project_id, dataset_id, location, parquet_f
     """
 
     client = bigquery.Client(project=project_id, location=location)
-    dataset = bigquery.Dataset(dataset_id)
+    dataset = bigquery.Dataset(f"{project_id}.{dataset_id}")
     dataset.location = location
     dataset_ref = client.create_dataset(dataset, exists_ok=True)
 
@@ -90,9 +91,9 @@ if __name__ == "__main__":
     )
     options = parser.parse_args(sys.argv[1:])
 
-parquet_folder = "./sample-data"
+parquet_folder = Path(__file__).parent / "sample-data"
 
 import_parquet_files_to_bigquery(options.project,
                                  options.dataset,
                                  options.location,
-                                 parquet_folder)
+                                 str(parquet_folder))
