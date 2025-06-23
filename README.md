@@ -26,7 +26,8 @@ Somewhat cleaned-up and augmented by [@vladkol](https://github.com/vladkol) and 
 
 1. Clone this repository: `git clone https://github.com/vladkol/sfdc-kittycorn`.
 2. Change current directory to the repository directory: `cd sfdc-kittycorn`.
-3. Upload sample data to your BigQuery project:
+3. Create a dataset
+4. Upload sample data to your BigQuery project:
 
 ```bash
 deploy_to_my_project.py --project YOUR_PROJECT_ID --dataset YOUR_DATASET_NAME [--location BIG_QUERY_LOCATION]
